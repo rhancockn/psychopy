@@ -860,7 +860,7 @@ class BaseComponent:
 
         return startTime, numericStart
 
-    def getDuration(self, startTime=0):
+    def getDuration(self, startTime=0, symDuration=False):
         # deduce stop time (s) if possible
         stopType = self.params['stopType'].val
         numericStop = canBeNumeric(self.params['stopVal'].val)
@@ -869,6 +869,10 @@ class BaseComponent:
             duration = float(self.params['stopVal'].val) - (startTime or 0)
         elif stopType == 'duration (s)' and numericStop:
             duration = float(self.params['stopVal'].val)
+        elif stopType == 'time (s)' and symDuration:
+            duration = f"{self.params['stopVal'].val} - {startTime}"
+        elif stopType == 'duration (s)' and symDuration:
+            duration = self.params['stopVal'].val
         else:
             # deduce duration (s) if possible. Duration used because component
             # time icon needs width

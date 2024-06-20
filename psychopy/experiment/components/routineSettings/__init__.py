@@ -65,6 +65,14 @@ class RoutineSettingsComponent(BaseComponent):
         self.params['durationEstim'].categ = "Flow"
 
         # --- Flow params ---
+        self.params['forceNonslip'] = Param(
+            useWindowParams, valType="bool", inputType="bool", categ="Flow",
+            label=_translate("Force non-slip timing"),
+            hint=_translate(
+                "Generate non-slip timing code for this routine based on the Timeout value."
+                "This should only be used when component timings are fixed at the start of the routine,"
+                "i.e. when reading durations from a loop variable."
+            ))
         self.params['skipIf'] = Param(
             skipIf, valType='code', inputType="single", categ='Flow',
             updates='constant',

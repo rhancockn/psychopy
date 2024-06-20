@@ -624,7 +624,7 @@ class Routine(list):
         buff.writeIndentedLines(code)
 
         # can we use non-slip timing?
-        maxTime, useNonSlip = self.getMaxTime()
+        maxTime, useNonSlip = self.getMaxTime(symDuration=True)
 
         code = "# update component parameters for each repeat\n"
         buff.writeIndentedLines(code)
@@ -758,7 +758,7 @@ class Routine(list):
                 "if routineForceEnded:\n"
                 "    routineTimer.reset()\n"
                 "else:\n"
-                "    routineTimer.addTime(-%f)\n"
+                "    routineTimer.addTime(-%s)\n"
             )
             buff.writeIndentedLines(code % (maxTime))
 
@@ -781,7 +781,7 @@ class Routine(list):
                 % self.params)
         buff.writeIndentedLines(code)
         # can we use non-slip timing?
-        maxTime, useNonSlip = self.getMaxTime()
+        maxTime, useNonSlip = self.getMaxTime(symDuration=True)
         if useNonSlip:
             buff.writeIndented('routineTimer.add(%f);\n' % (maxTime))
 
@@ -822,7 +822,7 @@ class Routine(list):
 
     def writeEachFrameCodeJS(self, buff, modular):
         # can we use non-slip timing?
-        maxTime, useNonSlip = self.getMaxTime()
+        maxTime, useNonSlip = self.getMaxTime(symDuration=True)
 
         # write code for each frame
 
@@ -898,7 +898,7 @@ class Routine(list):
 
     def writeRoutineEndCode(self, buff):
         # can we use non-slip timing?
-        maxTime, useNonSlip = self.getMaxTime()
+        maxTime, useNonSlip = self.getMaxTime(symDuration=True)
 
         # what loop are we in (or thisExp)?
         if len(self.exp.flow._loopList):
@@ -919,7 +919,7 @@ class Routine(list):
 
     def writeRoutineEndCodeJS(self, buff, modular):
         # can we use non-slip timing?
-        maxTime, useNonSlip = self.getMaxTime()
+        maxTime, useNonSlip = self.getMaxTime(symDuration=True)
 
         code = ("\nfunction %(name)sRoutineEnd(snapshot) {\n" % self.params)
         buff.writeIndentedLines(code)
@@ -998,7 +998,7 @@ class Routine(list):
     def hasOnlyStaticComp(self):
         return all([comp.type == 'Static' for comp in self])
 
-    def getMaxTime(self):
+    def getMaxTime(self, symDuration=False):
         """What the last (predetermined) stimulus time to be presented. If
         there are no components or they have code-based times then will
         default to 10secs
@@ -1022,9 +1022,11 @@ class Routine(list):
                     thisT = 0
                 maxTime = max(maxTime, thisT)
         # if max set by routine, override calculated max
-        rtDur, numericStop = self.settings.getDuration()
+        rtDur, numericStop = self.settings.getDuration(symDuration=symDuration)
         if rtDur != FOREVER:
             maxTime = rtDur
+            if self.params['forceNonslip']:
+                nonSlipSafe = True
         # if there are no components, default to 10s
         if maxTime == 0:
             maxTime = 10
